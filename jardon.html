@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jardon - Text and Oral Chat Window</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    #chat-box {
+      width: 100%;
+      height: 400px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      font-family: monospace;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:disabled {
+      background-color: #ccc;
+    }
+    .message {
+      margin: 10px 0;
+    }
+    .message .user {
+      color: blue;
+    }
+    .message .jardon {
+      color: green;
+    }
+    .code-block {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+    #copy-button {
+      margin-top: 10px;
+      padding: 5px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-box"></div>
+  
+  <input type="text" id="user-input" placeholder="Type your message here..." />
+  <button id="send-button">Send</button>
+  
+  <div id="code-section" style="display: none;">
+    <div class="code-block" id="code-block"></div>
+    <button id="copy-button">Copy Code</button>
+  </div>
+
+  <script>
+    // Define responses for different inputs
+    const responses = {
+      "hi": "Hello! How can I assist you today?",
+      "hello": "Hello! How can I assist you today?",
+      "how are you": "I'm doing great, thank you for asking!",
+      "good morning": "Good morning! How can I help you?",
+      "good evening": "Good evening! How can I help you?",
+      "what's the tallest building": "The tallest building in the world is the Burj Khalifa in Dubai, standing at 828 meters.",
+      "what's the capital of japan": "The capital of Japan is Tokyo.",
+      "who is the ceo of tesla": "The CEO of Tesla is Elon Musk.",
+      "how tall is mount everest": "Mount Everest is the tallest mountain in the world, standing at 8,848.86 meters.",
+      "tell me a joke": "Why don't skeletons fight each other? They don't have the guts!",
+      "what's the weather": "Sorry, I can't provide the weather at the moment. You can check a weather app or website!",
+      "what's 5 plus 10": "5 plus 10 equals 15.",
+      "shut down jardon": "Understood, sir. Shutting down.",
+      "can you write a sorting algorithm in python": `Here's a simple Python sorting algorithm:\n\n\`\`\`python\n# Example code\n\ndef bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n    return arr\n\ndemo_array = [5, 3, 8, 6, 7, 2]\nsorted_array = bubble_sort(demo_array)\nprint(sorted_array)\n\`\`\``,
+      "how do i train a machine learning model": "Training a machine learning model involves the following steps:\n1. Collect and preprocess data\n2. Choose a model architecture\n3. Split the data into training and testing sets\n4. Train the model on the training data\n5. Evaluate the model on the testing data\n6. Fine-tune the model for better performance",
+      "what is the square root of 144": "The square root of 144 is 12.",
+      "explain newton's laws of motion": "Newton's laws of motion are three fundamental principles that describe the relationship between a body and the forces acting on it. They are:\n1. An object in motion will stay in motion unless acted upon by an external force.\n2. The force acting on an object is equal to the mass of the object multiplied by its acceleration.\n3. For every action, there is an equal and opposite reaction.",
+      "how do i convert a string to an integer in python": "You can convert a string to an integer in Python using the `int()` function. For example:\n\n\`\`\`python\nstring_number = '123'\ninteger_number = int(string_number)\nprint(integer_number)\n\`\`\`",
+      "show me a picture of the earth": "Here is an image of Earth.",
+      "show me a cat": "Here's a cute cat for you!"
+    };
+
+    // Display the message in the chat box
+    function displayMessage(sender, message) {
+      const chatBox = document.getElementById('chat-box');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.innerHTML = `<span class="${sender}">${sender}:</span> ${message}`;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Function to speak the message (SpeechSynthesis API)
+    function speakMessage(message) {
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = 'en-US'; // You can change the language as needed
+      speechSynthesis.speak(utterance);
+    }
+
+    // Handle user input and chatbot response
+    document.getElementById('send-button').addEventListener('click', function() {
+      const userInput = document.getElementById('user-input').value.trim().toLowerCase();
+      if (userInput) {
+        displayMessage("You", userInput);
+
+        // Check if the input is the "shut down" command
+        if (userInput === "shut down jardon") {
+          displayMessage("Jardon", "Shutting down...");
+          speakMessage("Shutting down...");
+          setTimeout(() => window.close(), 2000);  // Close the window after a short delay
+          return;
+        }
+
+        // Get model's response
+        const response = responses[userInput] || "Sorry, I didn't understand that.";
+
+        // Display model's response
+        displayMessage("Jardon", response);
+
+        // Speak the model's response
+        speakMessage(response);
+
+        // If the response contains an image URL or keyword, show image
+        if (response.includes("earth")) {
+          displayMessage("Jardon", '<img src="https://example.com/earth.jpg" alt="Earth Image" />');
+        } else if (response.includes("cat")) {
+          displayMessage("Jardon", '<img src="https://example.com/cat.jpg" alt="Cat Image" />');
+        }
+
+        // Clear the input field
+        document.getElementById('user-input').value = '';
+      }
+    });
+
+    // Allow the "Enter" key to send the message
+    document.getElementById('user-input').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        document.getElementById('send-button').click();
+      }
+    });
+  </script>
+
+</body>
+</html>
